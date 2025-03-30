@@ -31,11 +31,18 @@ if uploaded_file is not None:
         metric_options = ['gmv_per_audience', 'app_opens_per_audience', 'orders_per_audience', 'transactors_per_audience']
         selected_metric = st.selectbox("Select Metric", metric_options)
         
+        # Select campaign dates
+        campaign_dates = st.multiselect("Select Campaign Dates", df_filtered['date'].dt.date.unique())
+        
         # Plot trend for both data sets
         fig, ax = plt.subplots(figsize=(10, 5))
         for data_set in df_filtered['data_set'].unique():
             df_subset = df_filtered[df_filtered['data_set'] == data_set].sort_values(by='date')
             ax.plot(df_subset['date'], df_subset[selected_metric], label=data_set, marker='o')
+        
+        # Mark campaign dates
+        for campaign_date in campaign_dates:
+            ax.axvline(pd.to_datetime(campaign_date), color='red', linestyle='--', alpha=0.7, label='Campaign Day' if campaign_date == campaign_dates[0] else "")
         
         ax.set_xlabel("Date")
         ax.set_ylabel(selected_metric.replace("_", " ").title())
