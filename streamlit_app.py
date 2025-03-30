@@ -12,20 +12,27 @@ if uploaded_file is not None:
     st.write(df.head())
     
     numeric_columns = df.select_dtypes(include=['number']).columns.tolist()
+    categorical_columns = df.select_dtypes(include=['object']).columns.tolist()
+    
+    if categorical_columns:
+        filter_col = st.selectbox("Select a column to filter", categorical_columns)
+        filter_values = df[filter_col].unique()
+        selected_values = st.multiselect("Select values to filter", filter_values, default=filter_values)
+        df = df[df[filter_col].isin(selected_values)]
     
     if numeric_columns:
         x_axis = st.selectbox("Select X-axis", numeric_columns)
         y_axis = st.selectbox("Select Y-axis", numeric_columns)
         
-        calc_option = st.selectbox("Choose a calculated parameter", ["None", "Mean", "Sum", "Standard Deviation"])
+        calc_expression = st.text_area("Enter a calculation (e.g., df['column1'] + df['column2'])")
         
-        if calc_option != "None":
-            if calc_option == "Mean":
-                st.write(f"Mean of {y_axis}: {df[y_axis].mean()}")
-            elif calc_option == "Sum":
-                st.write(f"Sum of {y_axis}: {df[y_axis].sum()}")
-            elif calc_option == "Standard Deviation":
-                st.write(f"Standard Deviation of {y_axis}: {df[y_axis].std()}")
+        if calc_expression:
+            try:
+                df['Calculated'] = eval(calc_expression, {"df": df, "pd": pd})
+                st.write("Calculated Values:")
+                st.write(df[['Calculated']].head())
+            except Exception as e:
+                st.write(f"Error in calculation: {e}")
         
         fig, ax = plt.subplots()
         ax.scatter(df[x_axis], df[y_axis], alpha=0.7)
