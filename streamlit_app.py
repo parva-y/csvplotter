@@ -56,3 +56,4 @@ if uploaded_file is not None:
         ax.grid()
         plt.xticks(rotation=45)  # Rotate labels for better readability
         st.pyplot(fig)
+        #thanks guys
