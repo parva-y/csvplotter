@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 st.title("Cohort Data Trend Visualizer")
 
@@ -35,7 +36,7 @@ if uploaded_file is not None:
         campaign_dates = st.multiselect("Select Campaign Dates", df_filtered['date'].dt.date.unique())
         
         # Plot trend for both data sets
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(19.2, 10.8))
         for data_set in df_filtered['data_set'].unique():
             df_subset = df_filtered[df_filtered['data_set'] == data_set].sort_values(by='date')
             ax.plot(df_subset['date'], df_subset[selected_metric], label=data_set, marker='o')
@@ -43,6 +44,10 @@ if uploaded_file is not None:
         # Mark campaign dates
         for campaign_date in campaign_dates:
             ax.axvline(pd.to_datetime(campaign_date), color='red', linestyle='--', alpha=0.7, label='Campaign Day' if campaign_date == campaign_dates[0] else "")
+        
+        # Format x-axis to show only day and month
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
+        ax.xaxis.set_major_locator(mdates.AutoDateLocator())
         
         ax.set_xlabel("Date")
         ax.set_ylabel(selected_metric.replace("_", " ").title())
